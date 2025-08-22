@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  body {
+    @apply bg-background-gray text-text;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-to-b from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white font-medium py-3 px-6 rounded-default transition-all duration-200 shadow-sm hover:shadow-premium;
+  }
+  
+  .btn-secondary {
+    @apply bg-white hover:bg-gray-50 text-primary border border-border font-medium py-3 px-6 rounded-default transition-all duration-200 shadow-sm hover:shadow-md;
+  }
+  
+  .btn-premium {
+    @apply bg-gradient-to-r from-metallic-gold to-metallic-goldLight hover:from-metallic-goldDark hover:to-metallic-gold text-white font-medium py-3 px-6 rounded-default transition-all duration-200 shadow-metallic hover:shadow-premium;
+  }
+  
+  .card {
+    @apply bg-white rounded-default shadow-sm hover:shadow-md border border-border transition-all duration-200;
+  }
+  
+  .card-premium {
+    @apply bg-white rounded-default shadow-premium border border-transparent bg-gradient-to-br from-white via-white to-gray-50 transition-all duration-200;
+    background-image: linear-gradient(to bottom right, #FFFFFF, #D1D5DB);
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-3 border border-border rounded-default focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200;
+  }
+  
+  .metallic-border {
+    background: linear-gradient(to bottom right, #FFFFFF, #D1D5DB);
+    border: 1px solid transparent;
+    background-clip: padding-box;
+  }
+  
+  .premium-tag {
+    @apply bg-gradient-to-r from-metallic-gold to-metallic-goldLight text-white px-3 py-1 rounded-full text-xs font-semibold shadow-metallic;
+  }
+  
+  .flash-deal {
+    @apply relative overflow-hidden border-2 border-metallic-gold bg-gradient-to-br from-white to-gray-50;
+    box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15);
+  }
+  
+  .hero-overlay {
+    background: linear-gradient(to bottom, #414A4C, transparent);
+  }
+}
