@@ -1,0 +1,57 @@
+{
+  "kind": "collectionType",
+  "collectionName": "event_content_types",
+  "info": {
+    "singularName": "event-content-type",
+    "pluralName": "event-content-types",
+    "displayName": "Event Content Type"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "duration": {
+      "type": "string"
+    },
+    "address": {
+      "type": "text"
+    },
+    "eventType": {
+      "type": "enumeration",
+      "enum": [
+        "workshop - Hands-on learning experiences",
+        "tasting - Wine, food, coffee tastings",
+        "class - Educational sessions",
+        "tour - Guided experiences",
+        "social - Networking events",
+        "networking - Professional meetups",
+        "popup - Pop-up shops/experiences",
+        "launch - Product/service launches",
+        "seminar - Educational talks",
+        "masterclass - Expert-led sessions",
+        "exhibition - Art/product displays",
+        "fitness - Yoga, wellness sessions",
+        "dining - Special dining events",
+        "entertainment - Live music, comedy",
+        "shopping - Exclusive shopping events",
+        "other - Catch-all option"
+      ]
+    },
+    "number": {
+      "type": "integer",
+      "min": 0
+    },
+    "isFree": {
+      "type": "boolean",
+      "default": false
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    }
+  }
+}

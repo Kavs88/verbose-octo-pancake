@@ -2,88 +2,41 @@ import React, { useState, useEffect } from 'react';
 import SearchBar from '../components/SearchBar';
 import ViewToggle from '../components/ViewToggle';
 import BusinessCard from '../components/BusinessCard';
+import { useBusinesses } from '../hooks/useBusinesses';
 
 const BusinessDirectory = () => {
-  const [businesses, setBusinesses] = useState([]);
+  const { businesses, loading, error, searchBusinesses, fetchBusinesses } = useBusinesses();
   const [filteredBusinesses, setFilteredBusinesses] = useState([]);
   const [currentView, setCurrentView] = useState('list');
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(true);
 
-  // Mock data - in real app this would come from Strapi API
+  // Update filtered businesses when businesses change
   useEffect(() => {
-    const mockBusinesses = [
-      {
-        id: 1,
-        name: "The Coffee House",
-        category: "Café",
-        neighborhood: "An Thuong",
-        rating: 4.5,
-        reviewCount: 128,
-        hasMemberDeal: true,
-        dealHighlight: "20% off all drinks for members",
-        coverPhoto: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop"
-      },
-      {
-        id: 2,
-        name: "Pho 24",
-        category: "Restaurant",
-        neighborhood: "My Khe",
-        rating: 4.2,
-        reviewCount: 89,
-        hasMemberDeal: false,
-        coverPhoto: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=300&fit=crop"
-      },
-      {
-        id: 3,
-        name: "Beach Yoga Studio",
-        category: "Wellness",
-        neighborhood: "Non Nuoc",
-        rating: 4.8,
-        reviewCount: 67,
-        hasMemberDeal: true,
-        dealHighlight: "Free class for new members",
-        coverPhoto: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop"
-      },
-      {
-        id: 4,
-        name: "Digital Nomad Hub",
-        category: "Co-working",
-        neighborhood: "Hai Chau",
-        rating: 4.6,
-        reviewCount: 45,
-        hasMemberDeal: true,
-        dealHighlight: "50% off first month",
-        coverPhoto: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop"
-      },
-      {
-        id: 5,
-        name: "Local Market Tours",
-        category: "Experience",
-        neighborhood: "Han Market",
-        rating: 4.7,
-        reviewCount: 156,
-        hasMemberDeal: true,
-        dealHighlight: "Group discount for 3+ people",
-        coverPhoto: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop"
-      }
-    ];
+    setFilteredBusinesses(businesses);
+  }, [businesses]);
 
-    setBusinesses(mockBusinesses);
-    setFilteredBusinesses(mockBusinesses);
-    setLoading(false);
-  }, []);
+  // Add GROUND TRUTH logging as requested
+  useEffect(() => {
+    if (businesses.length > 0) {
+      console.log('GROUND TRUTH:', JSON.stringify(businesses, null, 2));
+    }
+  }, [businesses]);
 
   const handleSearch = (term) => {
     setSearchTerm(term);
     if (!term.trim()) {
-      setFilteredBusinesses(businesses);
+      fetchBusinesses();
     } else {
-      const filtered = businesses.filter(business =>
-        business.name.toLowerCase().includes(term.toLowerCase()) ||
-        business.category.toLowerCase().includes(term.toLowerCase()) ||
-        business.neighborhood.toLowerCase().includes(term.toLowerCase())
-      );
+      // Filter locally for better performance - handle both flat and nested structures
+      const filtered = businesses.filter(business => {
+        const name = business.name || business.attributes?.name || '';
+        const category = business.category || business.attributes?.category || '';
+        const neighborhood = business.neighborhood || business.attributes?.neighborhood || '';
+        
+        return name.toLowerCase().includes(term.toLowerCase()) ||
+               category.toLowerCase().includes(term.toLowerCase()) ||
+               neighborhood.toLowerCase().includes(term.toLowerCase());
+      });
       setFilteredBusinesses(filtered);
     }
   };
@@ -171,7 +124,7 @@ const BusinessDirectory = () => {
           <button
             onClick={() => {
               setSearchTerm('');
-              setFilteredBusinesses(businesses);
+              fetchBusinesses();
             }}
             className="btn-secondary"
           >

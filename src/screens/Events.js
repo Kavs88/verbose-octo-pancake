@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CalendarIcon, MapPinIcon, ClockIcon, UserIcon, ListBulletIcon, PlusIcon, ShareIcon } from '@heroicons/react/24/outline';
+import apiService from '../services/api';
 
 const Events = () => {
   const [events, setEvents] = useState([]);
@@ -14,117 +15,61 @@ const Events = () => {
   const [showCalendarOptions, setShowCalendarOptions] = useState(false);
   const [selectedEventForCalendar, setSelectedEventForCalendar] = useState(null);
 
-  // Mock data - in real app this would come from Strapi API
+  // Fetch real data from Strapi API
   useEffect(() => {
-    const mockEvents = [
-      {
-        id: 1,
-        title: "Coffee Tasting Workshop",
-        date: "2024-01-15",
-        time: "2:00 PM",
-        duration: "2 hours",
-        businessName: "The Coffee House",
-        businessCategory: "Café",
-        neighborhood: "An Thuong",
-        description: "Learn about different coffee beans and brewing methods from our expert baristas. Perfect for coffee enthusiasts and beginners alike.",
-        image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop",
-        maxAttendees: 20,
-        currentAttendees: 15,
-        isAttending: false,
-        price: "Free for members",
-        attendees: [
-          { id: 1, name: "Sarah M.", avatar: "SM", isFriend: true },
-          { id: 2, name: "Mike R.", avatar: "MR", isFriend: false },
-          { id: 3, name: "Emma L.", avatar: "EL", isFriend: true }
-        ]
-      },
-      {
-        id: 2,
-        title: "Sunset Beach Yoga",
-        date: "2024-01-20",
-        time: "5:30 PM",
-        duration: "1 hour",
-        businessName: "Beach Yoga Studio",
-        businessCategory: "Wellness",
-        neighborhood: "Non Nuoc",
-        description: "Relaxing yoga session on the beach during golden hour. All levels welcome, mats provided.",
-        image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop",
-        maxAttendees: 30,
-        currentAttendees: 22,
-        isAttending: true,
-        price: "Free for members",
-        attendees: [
-          { id: 4, name: "David K.", avatar: "DK", isFriend: false },
-          { id: 5, name: "Lisa P.", avatar: "LP", isFriend: true },
-          { id: 6, name: "Tom B.", avatar: "TB", isFriend: false }
-        ]
-      },
-      {
-        id: 3,
-        title: "Vietnamese Cooking Class",
-        date: "2024-01-25",
-        time: "10:00 AM",
-        duration: "3 hours",
-        businessName: "Local Market Tours",
-        businessCategory: "Experience",
-        neighborhood: "Han Market",
-        description: "Learn to cook traditional Vietnamese dishes. Visit the local market, then cook and enjoy your creations.",
-        image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop",
-        maxAttendees: 12,
-        currentAttendees: 8,
-        isAttending: false,
-        price: "50% off for members",
-        attendees: [
-          { id: 7, name: "Maria S.", avatar: "MS", isFriend: true },
-          { id: 8, name: "Alex T.", avatar: "AT", isFriend: false }
-        ]
-      },
-      {
-        id: 4,
-        title: "Digital Nomad Meetup",
-        date: "2024-01-18",
-        time: "7:00 PM",
-        duration: "2 hours",
-        businessName: "Digital Nomad Hub",
-        businessCategory: "Co-working",
-        neighborhood: "Hai Chau",
-        description: "Network with fellow digital nomads, share experiences, and discover collaboration opportunities.",
-        image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop",
-        maxAttendees: 50,
-        currentAttendees: 35,
-        isAttending: false,
-        price: "Free for members",
-        attendees: [
-          { id: 9, name: "Jenny W.", avatar: "JW", isFriend: false },
-          { id: 10, name: "Chris L.", avatar: "CL", isFriend: true },
-          { id: 11, name: "Anna K.", avatar: "AK", isFriend: false }
-        ]
-      },
-      {
-        id: 5,
-        title: "Artisan Bread Making",
-        date: "2024-01-22",
-        time: "9:00 AM",
-        duration: "4 hours",
-        businessName: "Artisan Bakery",
-        businessCategory: "Bakery",
-        neighborhood: "Hai Chau",
-        description: "Master the art of bread making with our expert bakers. Take home your creations and the skills to make more.",
-        image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop",
-        maxAttendees: 15,
-        currentAttendees: 12,
-        isAttending: false,
-        price: "30% off for members",
-        attendees: [
-          { id: 12, name: "Emma L.", avatar: "EL", isFriend: true },
-          { id: 13, name: "Mike R.", avatar: "MR", isFriend: false }
-        ]
-      }
-    ];
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        console.log('🔄 Fetching events from API...');
+        const response = await apiService.getEvents(); // FIXED: Use proper getEvents method
+        console.log('✅ Events API Response:', response);
 
-    setEvents(mockEvents);
-    setFilteredEvents(mockEvents);
-    setLoading(false);
+        if (response && Array.isArray(response)) {
+          // Transform events to ensure they have required fields even without organizer relations
+          const transformedEvents = response.map(event => ({
+            ...event,
+            organizer: event.organizer || {
+              name: 'Organizer Name Unavailable',
+              category: 'Unknown Category',
+              neighborhood: 'Location Unavailable',
+              coverPhoto: null
+            },
+            date: event.date || 'Date Unavailable',
+            time: event.time || 'Time Unavailable',
+            maxAttendees: event.maxAttendees || 0,
+            attendees: event.attendees || 0
+          }));
+          
+          // Debug: Log image data for first event
+          if (transformedEvents.length > 0) {
+            console.log('🔍 First Event Image Debug:', {
+              eventId: transformedEvents[0].id,
+              imageUrl: transformedEvents[0].imageUrl,
+              image: transformedEvents[0].image,
+              coverPhoto: transformedEvents[0].coverPhoto,
+              photo: transformedEvents[0].photo,
+              fullEvent: transformedEvents[0]
+            });
+          }
+          
+          setEvents(transformedEvents);
+          setFilteredEvents(transformedEvents);
+          console.log(`📊 Loaded ${transformedEvents.length} events (transformed)`);
+        } else {
+          console.warn('⚠️ Unexpected events API response format:', response);
+          setEvents([]);
+          setFilteredEvents([]);
+        }
+      } catch (error) {
+        console.error('❌ Failed to fetch events:', error);
+        setEvents([]);
+        setFilteredEvents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
   }, []);
 
   // Apply filters
@@ -134,7 +79,7 @@ const Events = () => {
     // Category filter
     if (activeFilters.category.length > 0) {
       filtered = filtered.filter(event =>
-        activeFilters.category.includes(event.businessCategory)
+        activeFilters.category.includes(event.organizer?.category)
       );
     }
 
@@ -327,102 +272,84 @@ const Events = () => {
   };
 
   const EventCard = ({ event, onToggleAttendance, onAddToCalendar, compact = false }) => (
-    <div className={`card overflow-hidden hover:shadow-md transition-shadow duration-200 ${compact ? 'p-4' : 'p-6'}`}>
-      <div className="flex space-x-4">
-        <div className={`bg-gray-200 overflow-hidden rounded-default ${compact ? 'w-20 h-20' : 'w-32 h-32'}`}>
-          <img
-            src={event.image}
-            alt={event.title}
-            className="w-full h-full object-cover"
-          />
+    <div className="card overflow-hidden hover:shadow-md transition-shadow duration-200">
+      {/* Image Section - Match Deals exactly */}
+      <div className="relative h-48 bg-gray-200 overflow-hidden">
+        <img 
+          src={event.imageUrl || event.image || event.coverPhoto?.url || event.photo?.url || 'https://via.placeholder.com/400x300/cccccc/666666?text=No+Image'} 
+          alt={event.title || 'Event'} 
+          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" 
+          onError={(e) => {
+            console.log('🖼️ Image failed to load for event:', event.title, 'falling back to placeholder');
+            e.target.src = 'https://via.placeholder.com/400x300/cccccc/666666?text=No+Image';
+          }}
+        />
+        {event.isFeatured && (
+          <div className="absolute top-3 left-3 px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-semibold rounded-default">
+            Featured
+          </div>
+        )}
+      </div>
+      
+      {/* Content Section - Match Deals structure */}
+      <div className="p-6">
+        <div className="text-center mb-4">
+          <div className="text-4xl font-bold text-primary mb-2">{event.title}</div>
+          <p className="text-text-secondary">{event.description}</p>
         </div>
         
-        <div className="flex-1">
-          <h3 className={`font-semibold text-text mb-2 ${compact ? 'text-lg' : 'text-xl'}`}>
-            {event.title}
-          </h3>
-          
-          <div className="space-y-2 text-sm text-text-secondary">
-            <div className="flex items-center space-x-4">
-              <span className="flex items-center space-x-1">
-                <CalendarIcon className="w-4 h-4" />
-                <span>{event.date}</span>
-              </span>
-              <span className="flex items-center space-x-1">
-                <ClockIcon className="w-4 h-4" />
-                <span>{event.time} ({event.duration})</span>
-              </span>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <span className="flex items-center space-x-1">
-                <UserIcon className="w-4 h-4" />
-                <span>{event.businessName}</span>
-              </span>
-              <span className="flex items-center space-x-1">
-                <MapPinIcon className="w-4 h-4" />
-                <span>{event.neighborhood}</span>
-              </span>
-            </div>
-            
-            {!compact && (
-              <p className="text-text-secondary">{event.description}</p>
-            )}
-            
-            <div className="flex items-center justify-between">
-              <span className="text-primary font-medium">{event.price}</span>
-              <span className="text-sm text-text-secondary">
-                {event.currentAttendees}/{event.maxAttendees} attending
-              </span>
+        <div className="mb-4">
+          <h3 className="font-semibold text-lg text-text mb-2">{event.organizer?.name || 'Organizer Unavailable'}</h3>
+          <div className="flex items-center space-x-4 text-sm text-text-secondary mb-3">
+            <span>{event.organizer?.category || 'Unknown Category'}</span>
+            <span>•</span>
+            <div className="flex items-center space-x-1">
+              <MapPinIcon className="w-4 h-4" />
+              <span>{event.neighborhood || 'Location Unavailable'}</span>
             </div>
           </div>
           
-          {/* Social Proof - Attending Avatars */}
-          {!compact && event.attendees && event.attendees.length > 0 && (
-            <div className="mt-3 mb-3">
-              <div className="flex items-center space-x-2">
-                <div className="flex -space-x-2">
-                  {event.attendees.slice(0, 3).map((attendee) => (
-                    <div
-                      key={attendee.id}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium text-white ${
-                        attendee.isFriend ? 'bg-metallic-gold' : 'bg-primary'
-                      }`}
-                      title={attendee.name}
-                    >
-                      {attendee.avatar}
-                    </div>
-                  ))}
-                </div>
-                <span className="text-sm text-text-secondary">
-                  + {event.currentAttendees - 3} others are attending
-                </span>
-              </div>
-            </div>
-          )}
+          <div className="flex items-center space-x-4 text-sm text-text-secondary mb-3">
+            <span className="flex items-center space-x-1">
+              <CalendarIcon className="w-4 h-4" />
+              <span>{event.date || 'Date Unavailable'}</span>
+            </span>
+            <span className="flex items-center space-x-1">
+              <ClockIcon className="w-4 h-4" />
+              <span>{event.time || 'Time Unavailable'}</span>
+            </span>
+          </div>
           
-          <div className="flex space-x-2">
+          <div className="flex items-center justify-between text-sm mb-3">
+            <span className="text-text-secondary">{event.price || 'Free'}</span>
+            <span className="text-primary font-bold text-lg">
+              {event.attendees || 0}/{event.maxAttendees || '∞'} attending
+            </span>
+          </div>
+        </div>
+        
+        {/* Action Buttons */}
+        <div className="flex space-x-2">
+          <button
+            onClick={() => onToggleAttendance(event.id)}
+            className={`px-4 py-2 rounded-default font-medium transition-colors duration-200 ${
+              event.isAttending
+                ? 'bg-primary text-white'
+                : 'bg-white text-primary border border-primary hover:bg-primary hover:text-white'
+            }`}
+          >
+            {event.isAttending ? 'Attending ✅' : 'I\'m Attending'}
+          </button>
+          
+          {!compact && (
             <button
-              onClick={() => onToggleAttendance(event.id)}
-              className={`px-4 py-2 rounded-default font-medium transition-colors duration-200 ${
-                event.isAttending
-                  ? 'bg-primary text-white'
-                  : 'bg-white text-primary border border-primary hover:bg-primary hover:text-white'
-              }`}
+              onClick={() => onAddToCalendar(event)}
+              className="px-4 py-2 bg-white text-text-secondary border border-border rounded-default font-medium hover:bg-gray-50 transition-colors duration-200 flex items-center space-x-2"
             >
-              {event.isAttending ? 'Attending ✅' : 'I\'m Attending'}
+              <PlusIcon className="w-4 h-4" />
+              <span>Calendar</span>
             </button>
-            
-            {!compact && (
-              <button
-                onClick={() => onAddToCalendar(event)}
-                className="px-4 py-2 bg-white text-text-secondary border border-border rounded-default font-medium hover:bg-gray-50 transition-colors duration-200 flex items-center space-x-2"
-              >
-                <PlusIcon className="w-4 h-4" />
-                <span>Calendar</span>
-              </button>
-            )}
-          </div>
+          )}
         </div>
       </div>
     </div>
@@ -546,7 +473,7 @@ const Events = () => {
         {viewMode === 'calendar' ? (
           renderCalendar()
         ) : (
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredEvents.length > 0 ? (
               filteredEvents.map(event => (
                 <EventCard 
@@ -557,7 +484,7 @@ const Events = () => {
                 />
               ))
             ) : (
-              <div className="text-center py-12">
+              <div className="text-center py-12 col-span-full">
                 <div className="text-6xl mb-4">📅</div>
                 <h3 className="text-lg font-semibold text-text mb-2">No events found</h3>
                 <p className="text-text-secondary mb-4">

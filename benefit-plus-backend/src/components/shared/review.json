@@ -1,0 +1,28 @@
+{
+  "collectionName": "components_shared_reviews",
+  "info": {
+    "displayName": "Review",
+    "description": "Business reviews and ratings"
+  },
+  "options": {},
+  "attributes": {
+    "rating": {
+      "type": "integer",
+      "min": 1,
+      "max": 5,
+      "required": true
+    },
+    "comment": {
+      "type": "text"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "date": {
+      "type": "date",
+      "default": "now"
+    }
+  }
+}

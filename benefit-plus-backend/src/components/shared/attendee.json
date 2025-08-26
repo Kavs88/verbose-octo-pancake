@@ -1,0 +1,33 @@
+{
+  "collectionName": "components_shared_attendees",
+  "info": {
+    "displayName": "Attendee",
+    "description": "Event attendee information for social proof"
+  },
+  "options": {},
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "isFriend": {
+      "type": "boolean",
+      "default": false
+    },
+    "avatar": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "attending",
+        "maybe",
+        "declined"
+      ],
+      "default": "attending"
+    }
+  }
+}

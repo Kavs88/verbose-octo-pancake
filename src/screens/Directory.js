@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MagnifyingGlassIcon, FunnelIcon, MapPinIcon, StarIcon, EyeIcon, MapIcon } from '@heroicons/react/24/outline';
 import BusinessCard from '../components/BusinessCard';
+import apiService from '../services/api';
 
 const Directory = () => {
   const [businesses, setBusinesses] = useState([]);
@@ -17,144 +18,96 @@ const Directory = () => {
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
   const [hoveredBusiness, setHoveredBusiness] = useState(null);
 
-  // Mock data - in real app this would come from Strapi API
+  // Fetch real data from Strapi API
   useEffect(() => {
-    const mockBusinesses = [
-      {
-        id: 1,
-        name: "The Coffee House",
-        category: "Café",
-        neighborhood: "An Thuong",
-        coverPhoto: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop",
-        rating: 4.8,
-        reviewCount: 127,
-        hasMemberDeal: true,
-        dealHighlight: "20% off all beverages",
-        isFavorite: false,
-        isOpen: true,
-        amenities: ["WiFi", "Outdoor Seating", "Vegan Options"],
-        reviews: [
-          { id: 1, rating: 5, comment: "Amazing coffee and atmosphere!", author: "Sarah M.", date: "2024-01-10" },
-          { id: 2, rating: 4, comment: "Great place to work remotely", author: "Mike R.", date: "2024-01-08" },
-          { id: 3, rating: 5, comment: "Best latte in Da Nang!", author: "Emma L.", date: "2024-01-05" }
-        ]
-      },
-      {
-        id: 2,
-        name: "Beach Yoga Studio",
-        category: "Wellness",
-        neighborhood: "Non Nuoc",
-        coverPhoto: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop",
-        rating: 4.9,
-        reviewCount: 89,
-        hasMemberDeal: true,
-        dealHighlight: "Free first session",
-        isFavorite: true,
-        isOpen: true,
-        amenities: ["Mats Provided", "Beachfront", "All Levels Welcome"],
-        reviews: [
-          { id: 4, rating: 5, comment: "Incredible sunset yoga experience", author: "David K.", date: "2024-01-12" },
-          { id: 5, rating: 5, comment: "Professional instructors, beautiful location", author: "Lisa P.", date: "2024-01-09" }
-        ]
-      },
-      {
-        id: 3,
-        name: "Digital Nomad Hub",
-        category: "Co-working",
-        neighborhood: "Hai Chau",
-        coverPhoto: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop",
-        rating: 4.6,
-        reviewCount: 203,
-        hasMemberDeal: false,
-        dealHighlight: null,
-        isFavorite: false,
-        isOpen: true,
-        amenities: ["High-Speed WiFi", "Meeting Rooms", "Coffee Bar", "24/7 Access"],
-        reviews: [
-          { id: 6, rating: 4, comment: "Great workspace with good amenities", author: "Alex T.", date: "2024-01-11" },
-          { id: 7, rating: 5, comment: "Perfect for remote work", author: "Jenny W.", date: "2024-01-07" }
-        ]
-      },
-      {
-        id: 4,
-        name: "Local Market Tours",
-        category: "Experience",
-        neighborhood: "Han Market",
-        coverPhoto: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop",
-        rating: 4.9,
-        reviewCount: 178,
-        hasMemberDeal: true,
-        dealHighlight: "50% off for members",
-        isFavorite: true,
-        isOpen: true,
-        amenities: ["Guided Tours", "Local Guide", "Market Access"],
-        reviews: [
-          { id: 8, rating: 5, comment: "Authentic local experience", author: "Tom B.", date: "2024-01-13" },
-          { id: 9, rating: 5, comment: "Learned so much about Vietnamese culture", author: "Maria S.", date: "2024-01-06" }
-        ]
-      },
-      {
-        id: 5,
-        name: "Artisan Bakery",
-        category: "Bakery",
-        neighborhood: "Hai Chau",
-        coverPhoto: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop",
-        rating: 4.7,
-        reviewCount: 156,
-        hasMemberDeal: true,
-        dealHighlight: "Buy 2, Get 1 Free",
-        isFavorite: false,
-        isOpen: false,
-        amenities: ["Fresh Bread", "Pastries", "Coffee"],
-        reviews: [
-          { id: 10, rating: 4, comment: "Delicious pastries", author: "Chris L.", date: "2024-01-10" },
-          { id: 11, rating: 5, comment: "Best croissants in the city!", author: "Anna K.", date: "2024-01-04" }
-        ]
+    const fetchBusinesses = async () => {
+      try {
+        setLoading(true);
+        console.log('🔄 Fetching businesses from API...');
+        const response = await apiService.getBusinesses();
+                 console.log('✅ API Response:', response);
+        
+        if (response && Array.isArray(response)) {
+          setBusinesses(response);
+          setFilteredBusinesses(response);
+          console.log(`📊 Loaded ${response.length} businesses`);
+          
+                     // Add GROUND TRUTH logging as requested - show first few businesses
+          if (response.length > 0) {
+            console.log('GROUND TRUTH - First 3 Businesses:', response.slice(0, 3).map(b => ({
+               id: b.id,
+               name: b.name,
+               category: b.category,
+               coverPhotoUrl: b.coverPhotoUrl
+             })));
+             
+             // Show ALL available business IDs for debugging
+            const allIds = response.map(b => b.id).sort((a, b) => a - b);
+             console.log('🔢 ALL Available Business IDs:', allIds);
+            console.log('📊 Total businesses loaded:', response.length);
+           }
+        } else {
+          console.warn('⚠️ Unexpected API response format:', response);
+          setBusinesses([]);
+          setFilteredBusinesses([]);
+        }
+      } catch (error) {
+        console.error('❌ Failed to fetch businesses:', error);
+        setBusinesses([]);
+        setFilteredBusinesses([]);
+      } finally {
+        setLoading(false);
       }
-    ];
+    };
 
-    setBusinesses(mockBusinesses);
-    setFilteredBusinesses(mockBusinesses);
-    setLoading(false);
+    fetchBusinesses();
   }, []);
 
   // Apply filters
   useEffect(() => {
     let filtered = businesses;
 
-    // Search filter
+    // Search filter - use transformed data structure
     if (searchTerm) {
-      filtered = filtered.filter(business =>
-        business.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        business.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        business.neighborhood.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      filtered = filtered.filter(business => {
+        const name = business.name || '';
+        const category = business.category || '';
+        const neighborhood = business.neighborhood || '';
+        
+        return name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+               category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+               neighborhood.toLowerCase().includes(searchTerm.toLowerCase());
+      });
     }
 
-    // Category filter
+    // Category filter - use transformed data structure
     if (activeFilters.category.length > 0) {
-      filtered = filtered.filter(business =>
-        activeFilters.category.includes(business.category)
-      );
+      filtered = filtered.filter(business => {
+        const category = business.category;
+        return activeFilters.category.includes(category);
+      });
     }
 
-    // Member deal filter
+    // Member deal filter - use transformed data structure
     if (activeFilters.hasMemberDeal) {
-      filtered = filtered.filter(business => business.hasMemberDeal);
-    }
-
-    // Amenities filter
-    if (activeFilters.amenities.length > 0) {
-      filtered = filtered.filter(business =>
-        activeFilters.amenities.some(amenity =>
-          business.amenities.includes(amenity)
-        )
+      filtered = filtered.filter(business => 
+        business.hasMemberDeal
       );
     }
 
-    // Open now filter
+    // Amenities filter - use transformed data structure
+    if (activeFilters.amenities.length > 0) {
+      filtered = filtered.filter(business => {
+        const amenities = business.amenities || [];
+        return activeFilters.amenities.some(amenity => amenities.includes(amenity));
+      });
+    }
+
+    // Open now filter - use transformed data structure
     if (activeFilters.openNow) {
-      filtered = filtered.filter(business => business.isOpen);
+      filtered = filtered.filter(business => 
+        business.isOpen
+      );
     }
 
     setFilteredBusinesses(filtered);
@@ -395,21 +348,35 @@ const Directory = () => {
           <>
             {filteredBusinesses.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredBusinesses.map(business => (
-                  <div
-                    key={business.id}
-                    onMouseEnter={() => setHoveredBusiness(business.id)}
-                    onMouseLeave={() => setHoveredBusiness(null)}
-                    className={`transition-all duration-200 ${
-                      hoveredBusiness === business.id ? 'transform scale-105' : ''
-                    }`}
-                  >
-                    <BusinessCard
-                      business={business}
-                      onToggleFavorite={handleToggleFavorite}
-                    />
-                  </div>
-                ))}
+                                                                                                                                                               {filteredBusinesses.map(business => {
+                          // Debug log for first few businesses
+                          if (business.id <= 3) {
+                            console.log('📋 Rendering BusinessCard:', {
+                              id: business.id,
+                              name: business.name,
+                              category: business.category,
+                              neighborhood: business.neighborhood,
+                              coverPhotoUrl: business.coverPhotoUrl
+                            });
+                          }
+                          
+                          return (
+                            <div
+                              key={business.id}
+                              onMouseEnter={() => setHoveredBusiness(business.id)}
+                              onMouseLeave={() => setHoveredBusiness(null)}
+                              className={`transition-all duration-200 ${
+                                hoveredBusiness === business.id ? 'transform scale-105' : ''
+                              }`}
+                            >
+                                                                                 <BusinessCard
+                                business={business}
+                                onToggleFavorite={handleToggleFavorite}
+                                key={`${business.id}-${business.name}`}
+                              />
+                            </div>
+                          );
+                        })}
               </div>
             ) : (
               <div className="text-center py-12">

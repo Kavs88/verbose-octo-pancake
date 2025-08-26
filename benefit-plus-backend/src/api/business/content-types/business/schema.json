@@ -1,0 +1,108 @@
+{
+  "kind": "collectionType",
+  "collectionName": "businesses",
+  "info": {
+    "singularName": "business",
+    "pluralName": "businesses",
+    "displayName": "Business"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "neighborhood": {
+      "type": "string"
+    },
+    "rating": {
+      "type": "decimal",
+      "min": 0,
+      "max": 5
+    },
+    "reviewCount": {
+      "type": "integer",
+      "min": 0
+    },
+    "isOpen": {
+      "type": "boolean",
+      "default": true
+    },
+    "hasMemberDeal": {
+      "type": "boolean",
+      "default": false
+    },
+    "dealHighlight": {
+      "type": "text"
+    },
+    "isPremium": {
+      "type": "boolean",
+      "default": false
+    },
+    "description": {
+      "type": "text"
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "name"
+    },
+    "latitude": {
+      "type": "decimal"
+    },
+    "longitude": {
+      "type": "decimal"
+    },
+    "address": {
+      "type": "text"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
+    },
+    "openingHours": {
+      "type": "json"
+    },
+    "coverPhoto": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "photos": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "amenities": {
+      "type": "json"
+    },
+    "deals": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::deal.deal",
+      "mappedBy": "business"
+    },
+    "review_content_types": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::review-content-type.review-content-type",
+      "mappedBy": "business"
+    },
+    "events": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::event.event",
+      "mappedBy": "organizer"
+    }
+  }
+}

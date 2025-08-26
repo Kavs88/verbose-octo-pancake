@@ -1,0 +1,62 @@
+{
+  "kind": "collectionType",
+  "collectionName": "user_profile_content_types",
+  "info": {
+    "singularName": "user-profile-content-type",
+    "pluralName": "user-profile-content-types",
+    "displayName": "User Profile Content Type"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "userName": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "email": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "firstName": {
+      "type": "string"
+    },
+    "lastName": {
+      "type": "string"
+    },
+    "avatar": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "membershipTier": {
+      "type": "enumeration",
+      "default": "foundation",
+      "enum": [
+        "foundation",
+        "premier",
+        "vip"
+      ]
+    },
+    "membershipStartDate": {
+      "type": "date"
+    },
+    "membershipRenewalDate": {
+      "type": "date"
+    },
+    "favoriteCategories": {
+      "type": "json"
+    },
+    "location": {
+      "type": "string"
+    },
+    "notifications": {
+      "type": "json"
+    }
+  }
+}

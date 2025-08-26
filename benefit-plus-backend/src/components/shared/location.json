@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_shared_locations",
+  "info": {
+    "displayName": "Location",
+    "description": "Business location coordinates and address"
+  },
+  "options": {},
+  "attributes": {
+    "latitude": {
+      "type": "decimal",
+      "min": -90,
+      "max": 90
+    },
+    "longitude": {
+      "type": "decimal",
+      "min": -180,
+      "max": 180
+    },
+    "address": {
+      "type": "text"
+    }
+  }
+}
